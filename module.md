@@ -9,7 +9,7 @@
 
 
 
-## 开发步骤
+## 创建模块
 
 ### 创建工程
 * 从平台创建模块工程，使用Xcode打开静态库Demo工程,开发的工程目录在 `Development Pods`这个文件夹下面。  
@@ -20,7 +20,8 @@
 </div>
 
 
-### 创建模块  
+### 创建Module  
+>_模块的代码文件都必须保证在静态库文件夹下面的`Classes`文件夹内,否则代码不会被编译。资源文件建议放在`Assets`文件夹中，创建静态库的时候以bundle方式打包。_ 
 
 #### 1.静态库头文件  
 * 头文件的目的是暴露静态库的外部接口,所以只要创建一个`.h`的头文件，
@@ -59,12 +60,45 @@
 +(void)moduleInitializeWithOptions:(NSDictionary *)launchOptions mode:(id)mode;
 ```
 
+>Example
+>
+>```
+>#import "LMSPCommonWeb_Module.h"
+>#import "LMSPCommonWebViewController.h"
+>@implementation LMSPCommonWeb_Module
+>RegistModule()
+>NSString * const LMSPCommonWeb=@"LMSPCommonWeb";
+>+(NSString *)mainRoute{
+    return LMSPCommonWeb_LMSPCommonWebViewController_URL;
+}
+>+(NSArray *)exportDefault{
+    return @[LMSPCommonWeb_LMSPCommonWebViewController_URL];
+}
+>+(UIViewController *)exportAppLoader{
+    EGRootNavigationController *navi=[[EGRootNavigationController alloc]initWithRootViewController:[[LMSPCommonWebViewController alloc]init]];
+    return navi;
+}
+>+ (void)moduleInitializeWithOptions:(NSDictionary *)launchOptions mode:(id)mode{
+    [super moduleInitializeWithOptions:launchOptions mode:mode];
+    NSMutableDictionary *dict=[NSMutableDictionary dictionaryWithDictionary:[UIApplication sharedApplication].appParams];
+    [dict setValuesForKeysWithDictionary:@{@"configurations": @{
+                                                   @"login": @{
+                                                           @"loginUrl": @"eagle://lmsplogin/lmsploginnativemodule",
+                                                           @"isLoginAlways": @(YES)
+                                                           }}}];
+    [UIApplication sharedApplication].appParams=[NSDictionary dictionaryWithDictionary:dict];
+}
+>@end
+>```
+
+
+<span id="macros"></span>
 #### 3.静态库模块宏和常量定义文件
 
 * 定义的方式有2种：
 
 1、只使用`.h`文件进行定义  
->
+
 >```
 >#ifndef LMSPCommonUI_macros_h
 >#define LMSPCommonUI_macros_h
@@ -182,8 +216,34 @@ NSString * const IBMessage_LMSPCommunicateViewController_URL    =@"eagle://ibmes
 NSString * const IBMessage_LMSPCommunicateDetailViewController_URL=@"eagle://ibmessage/ibmessagenativemodule/communicate/detail";//沟通详情
 > ```
 
-
+## 创建ViewController
+1、在`Controllers`文件夹内创建Controller类。在模块的常量定义文件中定义该Controller的路由地址。[参考这里](#macros) 
+>不推荐在Controller的`.m`中定义路由地址，路由地址必须唯一。
  
+2、在Controller的`.m`文件中进行模块的路由绑定。
+> * 利用宏`moduleMapRoute`将模块和Controller的路由进行绑定  
+	`moduleMapRoute(IBMessage, IBMessage_IBMessageViewController_URL)`  
+> * `IBMessage`是定义的模块名称，`IBMessage_IBMessageViewController_URL `是定义的Controller的路由地址，路由地址的scheme必须是eagle。  
+
+3、在Controller中定义导航栏样式。
+>*不建议在控制器中添加其他代码逻辑，使得控制器过重。*
+
+
+## 创建Component
+1、在`Components`文件夹内创建Component。component必须继承`EGComponent`的基类
+>不推荐在Controller的`.m`中定义路由地址，路由地址必须唯一。
+ 
+2、在Controller的`.m`文件中进行模块的路由绑定。
+> * 利用宏`moduleMapRoute`将模块和Controller的路由进行绑定  
+	`moduleMapRoute(IBMessage, IBMessage_IBMessageViewController_URL)`  
+> * `IBMessage`是定义的模块名称，`IBMessage_IBMessageViewController_URL `是定义的Controller的路由地址，路由地址的scheme必须是eagle。  
+
+3、在Controller中定义导航栏样式。
+>*不建议在控制器中添加其他代码逻辑，使得控制器过重。*
+
+## 创建ViewModel
+
+## 创建View 
 
 
 
