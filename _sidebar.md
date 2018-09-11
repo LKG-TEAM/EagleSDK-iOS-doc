@@ -1,11 +1,13 @@
 * 入门
 
   * [快速开始](quickstart.md)
+  * [NativeModule工程开发](module.md)
+  * [WebModule工程开发](webmodule.md)
+  * [静态库](framework.md)
   * [概念](concept.md)
 
 * 指南
-
-  * [模块工程开发](module.md)
+  * [EagleSDK功能介绍](eaglesdk.md)
   * [媒体操作](media.md)
   * [网络请求](net.md)
   <!-- * [社交分享](cdn.md) -->

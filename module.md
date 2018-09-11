@@ -9,7 +9,7 @@
 
 
 
-## 创建模块
+## 创建NativeModule工程
 
 ### 创建工程
 * 从平台创建模块工程，使用Xcode打开静态库Demo工程,开发的工程目录在 `Development Pods`这个文件夹下面。  
@@ -20,7 +20,7 @@
 </div>
 
 
-### 创建Module  
+## Module的声明  
 >_模块的代码文件都必须保证在静态库文件夹下面的`Classes`文件夹内,否则代码不会被编译。资源文件建议放在`Assets`文件夹中，创建静态库的时候以bundle方式打包。_ 
 
 #### 1.静态库头文件  
@@ -33,8 +33,8 @@
 >1、头文件里面的内容就是将模块内创建的`.h`文件`import`。  
 >2、为加快编译速度工程配置使用了预编译功能，头文件中的内容会进行预编译，这个配置在`podspec`文件中。
 
-#### 2.静态库模块定义类  
-* 通过Cocoa Touch Class创建一个类,**命名必须遵守`(ModuleName)_Module`的规范**，一个模块只能有一个模块定义类。
+#### 2.静态库模块声明类  
+* 通过Cocoa Touch Class创建一个类,**命名必须遵守`(ModuleName)_Module`的规范**，一个模块只能有一个模块声明类。
 * **模块的定义类必须继承`EGModule`基类并且遵守`EGModuleExport`协议。**
 
 ***
@@ -42,7 +42,7 @@
 ![模块定义类]  
 </div>
 
-* 在定义类的`implementation`中，需要调用宏`RegistModule()`，进行模块注册。
+* 在声明类的`implementation`中，需要调用宏`RegistModule()`，进行模块注册。
 
 * 实现协议方法，`EGModuleExport`协议中提供了模块声明应该实现的接口  
 
@@ -98,7 +98,8 @@
 * 定义的方式有2种：
 
 1、只使用`.h`文件进行定义  
-
+>Example
+>
 >```
 >#ifndef LMSPCommonUI_macros_h
 >#define LMSPCommonUI_macros_h
@@ -138,10 +139,11 @@
 >```
 > * 适合定义宏，以及类型定义,常量定义的赋值需要在其他类的实现中进行。
 
-2、使用`.h`和`.m`文件进行定义
->在模块中使用了路由，为了集中管理配置路由，推荐使用这种方式来定义宏和常量。
->
-> * 在`.h`文件中定义常量和宏
+2、使用`.h`和`.m`文件进行定义  
+在模块中使用了路由，为了集中管理配置路由，推荐使用这种方式来定义宏和常量。
+* 在`.h`文件中定义常量和宏
+
+>Example
 >
 >```
 >#import <Foundation/Foundation.h>
@@ -194,7 +196,9 @@ EG_EXTERN NSString * const IBMessage_LMSPCommunicateDetailViewController_URL;//�
 
 >```
 
-> * 在`.m`文件中对常量进行赋值
+* 在`.m`文件中对常量进行赋值  
+
+> Example
 > 
 > ```
 > #import "IBMessage_Constant.h"
@@ -230,20 +234,93 @@ NSString * const IBMessage_LMSPCommunicateDetailViewController_URL=@"eagle://ibm
 
 
 ## 创建Component
-1、在`Components`文件夹内创建Component。component必须继承`EGComponent`的基类
->不推荐在Controller的`.m`中定义路由地址，路由地址必须唯一。
+1、在`Components`文件夹内创建Component类。Component必须继承`EGComponent`的基类
  
-2、在Controller的`.m`文件中进行模块的路由绑定。
-> * 利用宏`moduleMapRoute`将模块和Controller的路由进行绑定  
-	`moduleMapRoute(IBMessage, IBMessage_IBMessageViewController_URL)`  
-> * `IBMessage`是定义的模块名称，`IBMessage_IBMessageViewController_URL `是定义的Controller的路由地址，路由地址的scheme必须是eagle。  
+2、ViewController中页面级组件的拼装。
+在`Configurations`文件夹中创建与ViewController同名的json文件。  
+>*ViewController.json*
 
-3、在Controller中定义导航栏样式。
->*不建议在控制器中添加其他代码逻辑，使得控制器过重。*
+```json
+{
+    "components": [{
+            "IBMessageComponent": {
+                "size": {
+                    "usePercent": true,
+                    "horizontal": 1,
+                    "vertical": 1,
+                    "width": 0,
+                    "height": 0,
+                    "width-full": true
+                },
+                "flex": "FlexCloum",
+                "eg_id": "IBMessageComponent",
+                "eg_tag": "IBMessageComponent",
+                "dataSource":{
+                  
+                   }
+            }
+        }
+    ],
+    "viewcontroller": "IBMessageViewController",
+}
+```  
+3、在`-(void)componentInit`的生命周期方法中，初始化组件内部的view和相关数据加载。  
+4、在启动后，EagleSDK会根据json配置信息自动加载相应组件。  
+5、Component与ViewModel的解耦方式为:Component提供一个与Component同名的protocol，定义ViewModel必须提供的数据源属性和相关方法。Component使用时通过runtime进行动态调用，ViewModel与组件通信时可以通过协议方法将组件传入，不能传入时可以通过事件总线进行通信，最后通过组件直接调用组件内部方法更新组件。    
+
+* Example
+
+>```ObjectiveC
+@class IBMessageComponent;
+@protocol IBMessageComponent<NSObject>
+@property(nonatomic,strong)NSMutableArray *topDataSource;
+@property(nonatomic,strong)NSMutableArray *bottomChatDataSource;
+-(void)refreshMyCount:(IBMessageComponent *)component;
+@end
+@interface IBMessageComponent : EGComponent
+-(void)reloadData;
+@end
+>```
+
+6、Component可以在加载时通过json配置的dataSource，可以通过``这个协议方法实现配置方式的数据注入      
+
+```ObjectiveC
+@protocol EGComponentJSONDataSourceInjectable<NSObject>
+
+/**
+ 需要支持json注入数据源的component需要实现该方法
+ 
+ @param jsonDataSource json数据
+ */
+-(void)injectJSONDataSource:(id)jsonDataSource;
+
+@end
+```
 
 ## 创建ViewModel
 
+1、在`ViewModels`文件夹中创建ViewModel类，继承EGViewModel基类。  
+2、ViewModel的作用是提供数据源和获取数据的相关方法，对于Controller中配置了一个或者多个组件时，ViewModel要遵守所有组件的协议。
+  
+* Example
+
+>```ObjectiveC
+@interface IBMessageViewModel : EGViewModel<EGViewModel,IBMessageComponent>
+@property(nonatomic,strong)NSMutableArray *topDataSource;
+@property(nonatomic,strong)NSMutableArray *bottomChatDataSource;
+-(void)refreshMyCount:(IBMessageComponent *)component;
+@end
+>```
+
+3、通过宏`BindViewModelToController `将ViewModel与Controller进行绑定。  
+>* `BindViewModelToController(IBMessage, @"IBMessageViewController")`  
+>*其中`IBMessage`为模块名称，`@"IBMessageViewController"`为Controller的类名*
+
+4、ViewModel只是提供数据，所以没有设计相关生命周期，具体ViewModel的绑定流程参考指南中ViewModel的绑定机制。另外，ViewModel在设计时采用了去Model化的理念，所以数据都是字典或者数组的形式。
+
 ## 创建View 
+
+1、在`Views`文件夹中创建View类。  
 
 
 
