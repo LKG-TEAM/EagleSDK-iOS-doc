@@ -321,6 +321,8 @@ NSString * const IBMessage_LMSPCommunicateDetailViewController_URL=@"eagle://ibm
 ## 创建View 
 
 1、在`Views`文件夹中创建View类。  
-
+2、考虑代码复用，建议使用一个UI的静态库，创建需要复用的View，然后NativeModule添加对UI静态库的依赖。  
+3、使用xib创建的View，xib文件作为一种资源，需要在静态库打包的时候以bundle的形式保存在静态库。([参考静态库](/framework))  
+4、Component或者其他需要加载View中xib的情况，需要通过获取xib所在bundle来进行加载。  
 
 
