@@ -2,7 +2,7 @@
 
 ## SDK的第三方依赖
 1、EGIconfont:通过Cocoapods自动添加依赖。  
-2、
+2、因为EagleSDK的使用形式是动态库，所以将`Bugly`、`SVProgressHUD`、`IQKeyboardManager`、`SVGKit`这些第三方库摘除了依赖关系，需要手动添加到应用或者模块开发工程中。
 
 ## SDK的架构
 ```
