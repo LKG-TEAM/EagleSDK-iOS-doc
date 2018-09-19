@@ -33,21 +33,19 @@
 
 ## 使用常规代码
 
-- 图标库提供了一个含有图标库名称的宏`(图标库名称)InfoMake(text, imageSize, imageColor)`用来创建图标的UIImage对象。**text必须使用@"\U0000XXXX"这样的格式.**
-	- 1.使用宏
-			
-		>示例代码(图标库名称是`LMSPDemo`)
-		>
-		>```
+- 1.使用宏，图标库提供了一个含有图标库名称的宏`(图标库名称)InfoMake(text, imageSize, imageColor)`用来创建图标的UIImage对象。**text必须使用@"\U0000XXXX"这样的格式.**
+>示例代码(图标库名称是`LMSPDemo`)
+>
+>```
 UIImage *img=[UIImage iconWithInfo:LMSPDemoInfoMake(@"\U0000e699", 25, [UIColor redColor])];
-		>```
+>```
 
-	- 2.使用分类方法
-		>示例代码(图标库名称是`LMSPDemo`)
-		>
-		>```
+- 2.使用分类方法
+>示例代码(图标库名称是`LMSPDemo`)
+>
+>```
 UIImage *img=[LMSPDemo iconFontFromName:@"&#xe699" color:@"#00ff00" size:25];
-		>```
+>```
 
 ## 快捷使用
 - 我们提供了一个更便捷的方法使用图标库，使用url的方式提供iconfont的font、size和color信息，比如`iconfont://&#xe699/25/redColor`。url的scheme必须使用iconfont，color支持RGB的Hex字符串(使用时不要添加`#`)和`UIColor`的颜色类方法。

@@ -11,6 +11,9 @@
 * 指南
   * [EagleSDK功能介绍](eaglesdk.md)
   * [Core](eaglesdk_core.md)
+  * [EventBus](eventbus.md)
+  * [WebKit](webkit.md)
+  * [ViewModel的绑定](viewmodelbinding.md)
   * [媒体操作](media.md)
   * [网络请求](net.md)
   <!-- * [社交分享](cdn.md) -->
