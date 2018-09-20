@@ -25,6 +25,7 @@
 ### 常用类	
 [EGMacros](#macros)		
 [EGSDKLoader](#sdkloader)	
+[EGModuleManager](#modulemanager)
 [EGComponent](#component)	
 [EGProvider](#provider)		
 [EGRouterManager](#router)
@@ -78,7 +79,10 @@ WebModule_BaseURL(webModuleName)	//获取web模块的baseURL
 ```
 	
 ---
+### EGModuleManager <span id="modulemanager"></span>
 
+
+---
 
 ### EGComponent<span id="component"></span>
 
