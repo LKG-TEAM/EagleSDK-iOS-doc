@@ -17,6 +17,8 @@
   * [EGUserSession](usersession.md)
   * [Networking](networking.md)
   * [Router](router.md)
+  * [SanboxFile](sandboxfile.md)
+  * [Category](category.md)
   * [ViewModel的绑定](viewmodelbinding.md)
 
 * 定制

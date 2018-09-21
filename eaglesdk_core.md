@@ -23,13 +23,13 @@
 
 ## 常用Class和API
 ### 常用类	
-[EGMacros](#macros)		
-[EGSDKLoader](#sdkloader)	
-[EGModuleManager](#modulemanager)
-[EGComponent](#component)	
-[EGProvider](#provider)		
-[EGRouterManager](#router)
-
+- [EGMacros](#macros)		
+- [EGSDKLoader](#sdkloader)	
+- [EGModuleManager](#modulemanager)	
+- [EGComponent](#component)	
+- [EGProvider](#provider)		
+- [EGRouterManager](#router)
+- [UIViewController+EGComponent](#viewcontroller)
 ---
 
 ### EGMacros宏定义<span id="macros"></span>
@@ -80,7 +80,86 @@ WebModule_BaseURL(webModuleName)	//获取web模块的baseURL
 	
 ---
 ### EGModuleManager <span id="modulemanager"></span>
+```
++(instancetype)manager;
+-(NSArray<Class> *)moduleList;	//注册的模块列表
+-(EGModuleType)moduleTypeWithURL:(NSString *)moduleURL;	//模块类型
+-(void)registModule:(Class)moduleClass;	//注册模块
+-(NSString *)moduleRouter:(NSString *)module;	//模块内部路由
 
+/**
+ Make a hash url.
+ Like: eagle://module/IBCustomer/#!/IBCustomerDetailViewController
+ @param module ModuleName
+ @param vcRoute Controller to add route
+ @return Hash URL
+ */
+-(NSString *)hashRoute:(NSString *)module hashValue:(NSString *)vcRoute;
+
+/**
+ ViewController regist router in module.
+ @param module Module
+ @param vcClazz ViewController class.
+ @param router ViewController defined route.
+ */
+-(void)regitstModuleRouter:(NSString *)module vc:(Class)vcClazz router:(NSString *)router;
+
+-(NSString *)routeInModule:(NSString *)module vc:(NSString *)vcClassName;
+/**
+ Find module that viewcontroller in.
+ @param vcClassName ViewController className.
+ @return Module name.
+ */
+-(NSString *)moduleForVC:(NSString *)vcClassName;
+-(NSString *)moduleWithName:(NSString *)lowercaseName;
+
+-(void)bindViewModel:(Class)vmClazz forVC:(NSString *)vcClazz inModule:(NSString *)module;
+
+-(Class)viewModelClassForVC:(NSString *)vcClazz;
+-(NSArray<Class> *)viewModelArrayForVC:(NSString *)vcClazz;
+```
+- 路由使用ViewController中宏来注册。[参考宏](#viewcontroller)
+
+#### 宏
+```
+RegistModule()							//模块注册
+EGModuleRouter(module)					//模块路由
+EGModuleHashRouter(module,vcRoute)	//模块中控制器的哈希路由
+EGModule_Bundle(bundleName)			//获取所在模块下的bundle
+```
+#### `EGModuleExport`协议
+
+```
++(NSString *)mainRoute;
+@optional
+/**
+ Set Moduel default entrance
+ @return An array contains all route export.
+ */
++(NSArray *)exportDefault;
+
+@optional
+/**
+ Set Module export services
+ @return An array contains all public services.
+ */
++(NSArray *)exportService;
+
+@optional
+/**
+ If want to enable to start app from a module router,implement this method.
+ @return An instance that let keywindow load as rootviewcontroller.
+ */
++(UIViewController *)exportAppLoader;
+
+@optional
+/**
+ If want to add a provider with router,implement this method.
+ */
++(void)registProviderRouter:(EGProviderRouter *)router;
+
++(void)moduleInitializeWithOptions:(NSDictionary *)launchOptions mode:(id)mode;
+```
 
 ---
 
@@ -204,3 +283,13 @@ struct EGSize {
     return YES;
 }
 >```
+
+### UIViewController+EGComponent<span id="viewcontroller"></span>
+#### 宏
+```
+// 视图控制器注册路由地址
+mapRoute(route)
+
+// 模块工程中视图控制器注册路由地址
+moduleMapRoute(module,route)
+```
